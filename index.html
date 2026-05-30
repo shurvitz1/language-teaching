@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Deutsch-Reise · German Learning Journey</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet" />
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          display: ['Fraunces', 'serif'],
+          sans: ['"DM Sans"', 'sans-serif'],
+        },
+        colors: {
+          paper:   '#f5efe2',
+          ink:     '#23201b',
+          honey:   '#e0a93b',
+          rost:    '#c4452f',
+          moss:    '#5f7a52',
+          sky:     '#3f6f8f',
+        },
+      },
+    },
+  };
+</script>
+<style>
+  :root{
+    --paper:#f5efe2; --paper-2:#efe7d6; --ink:#23201b; --ink-soft:#5a544a;
+    --line:#ddd3bf; --honey:#e0a93b; --rost:#c4452f; --moss:#5f7a52; --sky:#3f6f8f;
+  }
+  *{ -webkit-tap-highlight-color: transparent; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background-color:var(--paper);
+    color:var(--ink);
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(224,169,59,.10), transparent 38%),
+      radial-gradient(circle at 88% 82%, rgba(63,111,143,.08), transparent 42%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+    font-family:'DM Sans',sans-serif;
+  }
+  .font-display{ font-family:'Fraunces',serif; }
+  .card{ background:#fffaf0; border:1px solid var(--line); box-shadow: 4px 4px 0 rgba(35,32,27,.06); }
+  .ring-honey:focus{ outline:none; box-shadow:0 0 0 3px rgba(224,169,59,.45); }
+  .nav-item{ transition:all .18s ease; }
+  .nav-item.active{ background:var(--ink); color:var(--paper); }
+  .nav-item.active .dot{ background:var(--honey); }
+  .flip{ perspective:1200px; }
+  .flip-inner{ transition:transform .55s cubic-bezier(.4,.2,.2,1); transform-style:preserve-3d; }
+  .flip.flipped .flip-inner{ transform:rotateY(180deg); }
+  .flip-face{ backface-visibility:hidden; -webkit-backface-visibility:hidden; }
+  .flip-back{ transform:rotateY(180deg); }
+  @keyframes rise{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:none;} }
+  .rise{ animation:rise .5s cubic-bezier(.2,.7,.2,1) both; }
+  @keyframes pop{ 0%{transform:scale(.8);opacity:0;} 60%{transform:scale(1.05);} 100%{transform:scale(1);opacity:1;} }
+  .pop{ animation:pop .4s cubic-bezier(.2,.7,.2,1) both; }
+  .speak-btn:active{ transform:scale(.9); }
+  .progress-track{ background:var(--paper-2); }
+  .scrollbar-thin::-webkit-scrollbar{ width:8px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb{ background:var(--line); border-radius:8px; }
+  details > summary{ list-style:none; cursor:pointer; }
+  details > summary::-webkit-details-marker{ display:none; }
+  .opt{ transition:all .15s ease; }
+  .opt:hover:not(:disabled){ transform:translateX(3px); }
+  .opt.correct{ background:#e7f0e0; border-color:var(--moss); }
+  .opt.wrong{ background:#f6e0db; border-color:var(--rost); }
+  .blank-input{ border-bottom:2px solid var(--honey); background:transparent; min-width:90px; text-align:center; }
+  .blank-input:focus{ outline:none; border-bottom-color:var(--rost); }
+  .locked{ filter:grayscale(.6); opacity:.55; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ============ APP SHELL ============ -->
+<div class="flex min-h-screen">
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="w-72 shrink-0 border-r border-[var(--line)] bg-[var(--paper-2)] hidden md:flex flex-col sticky top-0 h-screen">
+    <div class="px-6 pt-7 pb-5 border-b border-[var(--line)]">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-lg bg-ink text-paper font-display font-black text-2xl grid place-items-center" style="background:var(--ink);color:var(--paper)">D</div>
+        <div>
+          <h1 class="font-display font-black text-2xl leading-none">Deutsch&shy;Reise</h1>
+          <p class="text-xs tracking-widest uppercase text-[var(--ink-soft)] mt-1">A1 → A2 Journey</p>
+        </div>
+      </div>
+    </div>
+    <nav id="nav" class="flex-1 overflow-y-auto scrollbar-thin px-3 py-4 space-y-1"></nav>
+    <div class="px-6 py-4 border-t border-[var(--line)] text-xs text-[var(--ink-soft)]">
+      <div class="flex items-center justify-between">
+        <span>Built for <b class="text-ink" style="color:var(--ink)">my son</b></span>
+        <button onclick="resetAll()" class="underline hover:text-rost" style="color:var(--rost)">Reset</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Mobile top bar -->
+  <div class="md:hidden fixed top-0 inset-x-0 z-40 flex items-center justify-between px-4 h-14 bg-[var(--paper-2)] border-b border-[var(--line)]">
+    <button onclick="toggleMobileNav()" class="font-display font-black text-xl">☰ DeutschReise</button>
+    <span id="mobileStreak" class="text-sm"></span>
+  </div>
+  <div id="mobileNav" class="md:hidden fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/40" onclick="toggleMobileNav()"></div>
+    <div class="absolute left-0 top-0 h-full w-72 bg-[var(--paper-2)] p-3 overflow-y-auto" id="mobileNavInner"></div>
+  </div>
+
+  <!-- Main -->
+  <main id="main" class="flex-1 min-w-0 px-5 sm:px-8 lg:px-14 py-8 md:py-10 mt-14 md:mt-0 max-w-5xl mx-auto w-full"></main>
+</div>
+
+<!-- ============ DATA ============ -->
+<script>
+/* ----------------------------------------------------------------
+   WORD BANK — every entry comes from the words already studied
+   (sourced from the family vocabulary Google Doc).
+-----------------------------------------------------------------*/
+const WORDS = {
+  family: [
+    {de:"der Vater", en:"father"}, {de:"die Mutter", en:"mother"},
+    {de:"der Bruder", en:"brother"}, {de:"die Schwester", en:"sister"},
+    {de:"der Sohn", en:"son"}, {de:"die Tochter", en:"daughter"},
+    {de:"das Kind", en:"child"}, {de:"die Kinder", en:"children"},
+    {de:"die Familie", en:"family"}, {de:"der Freund", en:"friend (m)"},
+    {de:"die Freundin", en:"friend (f)"},
+  ],
+  jobs: [
+    {de:"der Arzt", en:"doctor (m)"}, {de:"die Ärztin", en:"doctor (f)"},
+    {de:"der Lehrer", en:"teacher (m)"}, {de:"die Lehrerin", en:"teacher (f)"},
+    {de:"der Anwalt", en:"lawyer (m)"}, {de:"die Anwältin", en:"lawyer (f)"},
+    {de:"der Student", en:"student (m)"}, {de:"die Studentin", en:"student (f)"},
+    {de:"der Künstler", en:"artist (m)"}, {de:"der Kellner", en:"waiter"},
+    {de:"die Kellnerin", en:"waitress"}, {de:"der Beruf", en:"profession"},
+  ],
+  food: [
+    {de:"das Brot", en:"bread"}, {de:"der Käse", en:"cheese"},
+    {de:"das Ei", en:"egg"}, {de:"der Salat", en:"salad"},
+    {de:"die Pizza", en:"pizza"}, {de:"das Schnitzel", en:"schnitzel"},
+    {de:"die Wurst", en:"sausage"}, {de:"der Apfel", en:"apple"},
+    {de:"die Banane", en:"banana"}, {de:"das Essen", en:"food / meal"},
+    {de:"der Joghurt", en:"yoghurt"}, {de:"das Sandwich", en:"sandwich"},
+  ],
+  drink: [
+    {de:"der Kaffee", en:"coffee"}, {de:"der Tee", en:"tea"},
+    {de:"das Wasser", en:"water"}, {de:"die Milch", en:"milk"},
+    {de:"der Wein", en:"wine"}, {de:"das Bier", en:"beer"},
+    {de:"das Mineralwasser", en:"mineral water"}, {de:"die Orange", en:"orange"},
+  ],
+  places: [
+    {de:"das Café", en:"café"}, {de:"das Restaurant", en:"restaurant"},
+    {de:"der Supermarkt", en:"supermarket"}, {de:"der Markt", en:"market"},
+    {de:"die Stadt", en:"city"}, {de:"das Haus", en:"house"},
+    {de:"die Apotheke", en:"pharmacy"}, {de:"die Bibliothek", en:"library"},
+    {de:"das Kino", en:"cinema"}, {de:"der Bahnhof", en:"train station"},
+  ],
+  adjectives: [
+    {de:"groß", en:"big / tall"}, {de:"klein", en:"small"},
+    {de:"alt", en:"old"}, {de:"jung", en:"young"},
+    {de:"gut", en:"good"}, {de:"lecker", en:"delicious"},
+    {de:"teuer", en:"expensive"}, {de:"billig", en:"cheap"},
+    {de:"kalt", en:"cold"}, {de:"heiß", en:"hot"},
+    {de:"müde", en:"tired"}, {de:"nett", en:"nice / kind"},
+  ],
+};
+
+/* present-tense verbs (from the doc) used in exercises */
+const VERBS = {
+  sein:    {en:"to be",   ich:"bin",   du:"bist",  er:"ist",   wir:"sind",  ihr:"seid",  sie:"sind"},
+  haben:   {en:"to have", ich:"habe",  du:"hast",  er:"hat",   wir:"haben", ihr:"habt",  sie:"haben"},
+  wohnen:  {en:"to live", ich:"wohne", du:"wohnst",er:"wohnt", wir:"wohnen",ihr:"wohnt", sie:"wohnen"},
+  kommen:  {en:"to come", ich:"komme", du:"kommst",er:"kommt", wir:"kommen",ihr:"kommt", sie:"kommen"},
+  heißen:  {en:"to be called", ich:"heiße", du:"heißt", er:"heißt", wir:"heißen", ihr:"heißt", sie:"heißen"},
+  essen:   {en:"to eat",  ich:"esse",  du:"isst",  er:"isst",  wir:"essen", ihr:"esst",  sie:"essen"},
+  trinken: {en:"to drink",ich:"trinke",du:"trinkst",er:"trinkt",wir:"trinken",ihr:"trinkt",sie:"trinken"},
+  nehmen:  {en:"to take", ich:"nehme", du:"nimmst",er:"nimmt", wir:"nehmen",ihr:"nehmt", sie:"nehmen"},
+  bestellen:{en:"to order",ich:"bestelle",du:"bestellst",er:"bestellt",wir:"bestellen",ihr:"bestellt",sie:"bestellen"},
+  möchten: {en:"would like",ich:"möchte",du:"möchtest",er:"möchte",wir:"möchten",ihr:"möchtet",sie:"möchten"},
+};
+</script>
+
+<!-- ============ LESSON CONTENT ============ -->
+<script>
+const LESSONS = [
+  /* ---------------- LESSON 1 ---------------- */
+  {
+    id:1,
+    title:"Ich und meine Familie",
+    subtitle:"Introducing yourself · family · jobs",
+    accent:"honey",
+    vocab:[...WORDS.family, ...WORDS.jobs],
+    grammar:{
+      heading:"sein & haben + word order (verb in position 2)",
+      blocks:[
+        {h:"The verb is always in position 2", p:"In a normal German statement, the conjugated verb is the <b>second idea</b> — no matter what comes first.",
+         examples:[
+           {de:"Ich wohne in München.", en:"I live in Munich."},
+           {de:"Heute bin ich müde.", en:"Today I am tired."},
+           {de:"Mein Bruder heißt Tom.", en:"My brother is called Tom."},
+         ]},
+        {h:"sein — to be (irregular)", table:["sein", VERBS.sein]},
+        {h:"haben — to have", table:["haben", VERBS.haben]},
+        {h:"W-questions vs. Yes/No questions", p:"With a <b>W-word</b> (wer, wie, wo, woher) the verb stays in position 2. In a <b>yes/no</b> question the verb jumps to the <b>front</b>.",
+         examples:[
+           {de:"Woher kommst du?", en:"Where are you from?"},
+           {de:"Wie heißt deine Schwester?", en:"What is your sister called?"},
+           {de:"Bist du Student?", en:"Are you a student?"},
+         ]},
+      ],
+      exercises:[
+        {type:"mc", q:"Choose the correct form: „Mein Vater ___ Arzt.“", options:["bin","bist","ist","sind"], answer:2},
+        {type:"mc", q:"Choose the correct form: „Wir ___ zwei Kinder.“", options:["habe","hat","habt","haben"], answer:3},
+        {type:"mc", q:"Which word order is correct?", options:["Heute ich bin müde.","Heute bin ich müde.","Bin heute ich müde.","Ich heute bin müde."], answer:1},
+        {type:"fill", q:"Complete: „Ich ___ (heißen) Daniel.“", answer:"heiße"},
+        {type:"fill", q:"Make it a yes/no question: „Du bist Lehrer.“ → „___ du Lehrer?“", answer:"Bist"},
+        {type:"mc", q:"„___ kommst du?“ — you want to know the country of origin.", options:["Wie","Wo","Woher","Was"], answer:2},
+      ],
+    },
+    listening:{
+      intro:"Listen to the dialogue, then shadow each line out loud. Tap 🔊 to hear it as many times as you like.",
+      dialogue:[
+        {sp:"A", de:"Hallo! Wie heißt du?", en:"Hello! What's your name?"},
+        {sp:"B", de:"Ich heiße Lena. Und du?", en:"My name is Lena. And you?"},
+        {sp:"A", de:"Ich bin Max. Woher kommst du?", en:"I'm Max. Where are you from?"},
+        {sp:"B", de:"Ich komme aus Berlin. Ich bin Studentin.", en:"I'm from Berlin. I'm a student."},
+        {sp:"A", de:"Schön! Hast du Geschwister?", en:"Nice! Do you have siblings?"},
+        {sp:"B", de:"Ja, ich habe einen Bruder und eine Schwester.", en:"Yes, I have a brother and a sister."},
+      ],
+      shadow:[
+        {de:"Ich heiße ___.", hint:"Say your own name"},
+        {de:"Ich komme aus Israel.", hint:"Where you are from"},
+        {de:"Ich habe einen Bruder.", hint:"Talk about your family"},
+      ],
+    },
+    reading:{
+      title:"Das ist meine Familie",
+      text:"Hallo! Ich heiße Sara. Ich bin elf Jahre alt. Mein Vater heißt David. Er ist Arzt. Meine Mutter heißt Rut. Sie ist Lehrerin. Ich habe einen Bruder. Mein Bruder heißt Tom und er ist sehr nett. Wir wohnen in einer kleinen Stadt.",
+      questions:[
+        {type:"mc", q:"Was ist Saras Vater von Beruf?", options:["Lehrer","Arzt","Student","Kellner"], answer:1},
+        {type:"mc", q:"Wer ist Lehrerin?", options:["Sara","Tom","die Mutter","der Vater"], answer:2},
+        {type:"mc", q:"Wie viele Geschwister hat Sara?", options:["keine","einen Bruder","zwei Schwestern","drei Kinder"], answer:1},
+      ],
+      writing:"Write 3–4 sentences about your own family. Use: heißen, sein, haben. Example start: „Ich heiße … Mein Vater heißt …“",
+    },
+    homework:[
+      {type:"fill", q:"„Meine Mutter ___ (sein) Künstlerin.“", answer:"ist"},
+      {type:"fill", q:"„___ (haben) du einen Bruder?“", answer:"Hast"},
+      {type:"mc", q:"Translate: „She is a teacher.“", options:["Er ist Lehrer.","Sie ist Lehrerin.","Sie ist Lehrer.","Sie sind Lehrerin."], answer:1},
+      {type:"fill", q:"„Wir ___ (wohnen) in einer Stadt.“", answer:"wohnen"},
+      {type:"write", q:"Write a yes/no question and a W-question about someone's family."},
+    ],
+  },
+
+  /* ---------------- LESSON 2 ---------------- */
+  {
+    id:2,
+    title:"Im Café",
+    subtitle:"Food & drink · ordering · ein / eine / kein",
+    accent:"rost",
+    vocab:[...WORDS.food, ...WORDS.drink],
+    grammar:{
+      heading:"Present tense + the articles ein / eine / kein (Accusative)",
+      blocks:[
+        {h:"Regular present tense endings", p:"Most verbs follow this pattern. Take the stem (e.g. <b>trink-</b>) and add the ending.",
+         examples:[
+           {de:"ich trinke", en:"I drink"},
+           {de:"du trinkst", en:"you drink"},
+           {de:"er/sie trinkt", en:"he/she drinks"},
+           {de:"wir trinken", en:"we drink"},
+         ]},
+        {h:"nehmen — to take (vowel change e→i)", table:["nehmen", VERBS.nehmen]},
+        {h:"„Ich möchte…“ — the polite way to order", p:"Use <b>möchte</b> + a noun to order politely. It's the most useful phrase in any café.",
+         examples:[
+           {de:"Ich möchte einen Kaffee, bitte.", en:"I'd like a coffee, please."},
+           {de:"Ich nehme ein Wasser.", en:"I'll take a water."},
+         ]},
+        {h:"ein / eine / kein in the accusative", p:"After verbs like <b>nehmen, möchten, essen, trinken</b> the object changes. <b>Masculine</b> der → <b>einen</b>. Feminine & neuter stay <b>eine / ein</b>. <b>kein</b> = „not a / no“.",
+         examples:[
+           {de:"Ich nehme einen Salat. (der Salat)", en:"I'll take a salad."},
+           {de:"Ich möchte eine Pizza. (die Pizza)", en:"I'd like a pizza."},
+           {de:"Ich esse ein Brot. (das Brot)", en:"I'm eating a bread."},
+           {de:"Ich trinke keinen Kaffee.", en:"I don't drink coffee."},
+         ]},
+      ],
+      exercises:[
+        {type:"mc", q:"„Ich ___ (nehmen) einen Tee.“", options:["nehme","nimmst","nimmt","nehmt"], answer:0},
+        {type:"mc", q:"„Du ___ (essen) eine Pizza.“", options:["esse","isst","esst","essen"], answer:1},
+        {type:"mc", q:"„Ich möchte ___ Salat.“ (der Salat, accusative)", options:["ein","eine","einen","kein"], answer:2},
+        {type:"fill", q:"„Ich möchte ___ Pizza.“ (die Pizza)", answer:"eine"},
+        {type:"fill", q:"„Wir ___ (trinken) Wasser.“", answer:"trinken"},
+        {type:"mc", q:"„Ich trinke ___ Bier.“ (= no beer / I don't drink beer)", options:["ein","kein","keine","keinen"], answer:1},
+      ],
+    },
+    listening:{
+      intro:"A short café scene. Listen, repeat each line, then try ordering your own meal out loud.",
+      dialogue:[
+        {sp:"Kellner", de:"Guten Tag! Was möchten Sie?", en:"Hello! What would you like?"},
+        {sp:"Gast", de:"Ich möchte einen Kaffee und ein Sandwich, bitte.", en:"I'd like a coffee and a sandwich, please."},
+        {sp:"Kellner", de:"Möchten Sie auch einen Salat?", en:"Would you also like a salad?"},
+        {sp:"Gast", de:"Nein, danke. Aber ich nehme ein Wasser.", en:"No, thanks. But I'll take a water."},
+        {sp:"Kellner", de:"Sehr gut. Einen Moment, bitte.", en:"Very good. One moment, please."},
+        {sp:"Gast", de:"Die Rechnung, bitte!", en:"The bill, please!"},
+      ],
+      shadow:[
+        {de:"Ich möchte einen Kaffee, bitte.", hint:"Order a drink"},
+        {de:"Ich nehme eine Pizza.", hint:"Order food"},
+        {de:"Die Rechnung, bitte!", hint:"Ask for the bill"},
+      ],
+    },
+    reading:{
+      title:"Lena im Café",
+      text:"Lena ist im Café. Sie hat Hunger und Durst. „Ich möchte einen Salat und ein Mineralwasser, bitte“, sagt sie. Der Kellner ist sehr nett. Der Salat ist lecker, aber er ist ein bisschen teuer. Lena trinkt keinen Kaffee — sie trinkt Tee. Am Ende sagt sie: „Die Rechnung, bitte!“",
+      questions:[
+        {type:"mc", q:"Was möchte Lena essen?", options:["eine Pizza","einen Salat","ein Brot","ein Schnitzel"], answer:1},
+        {type:"mc", q:"Was trinkt Lena?", options:["Kaffee","Bier","Tee","Wein"], answer:2},
+        {type:"mc", q:"Wie ist der Salat?", options:["billig","kalt","lecker","klein"], answer:2},
+      ],
+      writing:"Imagine you are at a café. Write 3–4 sentences ordering food and a drink. Use „Ich möchte…“ and „Ich nehme…“.",
+    },
+    homework:[
+      {type:"fill", q:"„Ich ___ (nehmen) einen Kaffee.“", answer:"nehme"},
+      {type:"mc", q:"„Ich möchte ___ Wasser.“ (das Wasser)", options:["einen","eine","ein","kein"], answer:2},
+      {type:"fill", q:"„Du ___ (essen) ein Schnitzel.“", answer:"isst"},
+      {type:"mc", q:"How do you politely ask for the bill?", options:["Die Rechnung, bitte!","Ein Wasser, bitte!","Wie geht's?","Auf Wiedersehen!"], answer:0},
+      {type:"write", q:"Write your own 4-line café dialogue between a Kellner and a Gast."},
+    ],
+  },
+
+  /* ---------------- LESSONS 3–5 (scaffolded) ---------------- */
+  { id:3, title:"In der Stadt", subtitle:"Places · directions · prepositions", accent:"sky", placeholder:true },
+  { id:4, title:"Mein Tag", subtitle:"Daily routine · time · separable verbs", accent:"moss", placeholder:true },
+  { id:5, title:"Hobbys & Freizeit", subtitle:"Hobbies · „gern“ · weekend talk", accent:"honey", placeholder:true },
+];
+
+const PASS_SCORE = 0.7; // 70% to pass a milestone
+</script>
+
+<!-- ============ APP LOGIC ============ -->
+<script>
+/* ---------- State ---------- */
+const STORE_KEY = "deutschreise_v1";
+const defaultState = { completed:{}, scores:{}, milestones:{}, flashKnown:{}, lastView:"dashboard" };
+let state = loadState();
+
+function loadState(){
+  try{ return Object.assign({}, defaultState, JSON.parse(localStorage.getItem(STORE_KEY))||{}); }
+  catch(e){ return {...defaultState}; }
+}
+function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+
+/* ---------- Lesson / milestone gating ---------- */
+function lessonUnlocked(id){
+  if(id===1) return true;
+  // a milestone gate sits after lesson 5, 10, ...
+  const gateBefore = id-1;
+  if(gateBefore % 5 === 0){ // need milestone passed for the previous block
+    const block = gateBefore/5;
+    if(!state.milestones["m"+block]) return false;
+  }
+  return !!state.completed[id-1] || id<= (Math.max(...Object.keys(state.completed).map(Number).concat(0))+1);
+}
+function isPlaceholder(id){ return !!(LESSONS.find(l=>l.id===id)||{}).placeholder; }
+
+/* ---------- Text to Speech ---------- */
+let deVoice = null;
+function pickVoice(){
+  const voices = speechSynthesis.getVoices();
+  deVoice = voices.find(v=>/de(-|_)?/i.test(v.lang)) || null;
+}
+if('speechSynthesis' in window){
+  pickVoice();
+  speechSynthesis.onvoiceschanged = pickVoice;
+}
+function speak(text, rate=0.92){
+  if(!('speechSynthesis' in window)){ return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text.replace(/_/g,' '));
+  u.lang = "de-DE"; u.rate = rate; u.pitch = 1;
+  if(deVoice) u.voice = deVoice;
+  speechSynthesis.speak(u);
+}
+function speakBtn(text){
+  const t = text.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+  return `<button class="speak-btn shrink-0 w-9 h-9 grid place-items-center rounded-full border border-[var(--line)] bg-white hover:bg-[var(--honey)] hover:text-white transition" onclick="speak('${t}')" title="Listen">🔊</button>`;
+}
+
+/* ---------- Routing ---------- */
+function go(view){ state.lastView=view; save(); render(); document.getElementById('main').scrollTo(0,0); window.scrollTo(0,0); closeMobile(); }
+
+function render(){
+  renderNav();
+  const v = state.lastView || "dashboard";
+  const main = document.getElementById('main');
+  if(v==="dashboard") main.innerHTML = viewDashboard();
+  else if(v==="progress") main.innerHTML = viewProgress();
+  else if(v.startsWith("lesson:")) { renderLesson(parseInt(v.split(":")[1])); return; }
+  else if(v.startsWith("homework:")) { renderHomework(parseInt(v.split(":")[1])); return; }
+  else if(v.startsWith("milestone:")) { renderMilestone(parseInt(v.split(":")[1])); return; }
+  else main.innerHTML = viewDashboard();
+}
+
+/* ---------- Navigation sidebar ---------- */
+function renderNav(){
+  const items = [
+    {label:"Dashboard", icon:"◆", view:"dashboard"},
+    {label:"Current Lesson", icon:"▸", view:"lesson:"+currentLessonId()},
+    {label:"Homework", icon:"✎", view:"homework:"+currentLessonId()},
+    {label:"Progress Tracker", icon:"▲", view:"progress"},
+  ];
+  const cur = state.lastView||"dashboard";
+  const html = items.map(it=>{
+    const active = cur===it.view || (it.view.split(":")[0]===cur.split(":")[0] && it.view.includes(":"));
+    return `<button onclick="go('${it.view}')" class="nav-item ${active?'active':''} w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left font-medium">
+      <span class="dot w-2.5 h-2.5 rounded-full" style="background:var(--ink-soft)"></span>
+      <span class="text-[15px]">${it.label}</span>
+    </button>`;
+  }).join("");
+  document.getElementById('nav').innerHTML = html;
+  document.getElementById('mobileNavInner').innerHTML =
+    `<div class="font-display font-black text-2xl px-3 py-3">DeutschReise</div>`+html;
+  const done = Object.keys(state.completed).length;
+  document.getElementById('mobileStreak').textContent = `✅ ${done}`;
+}
+function currentLessonId(){
+  for(const l of LESSONS){ if(!state.completed[l.id] && lessonUnlocked(l.id) && !l.placeholder) return l.id; }
+  for(const l of LESSONS){ if(!state.completed[l.id]) return l.id; }
+  return 1;
+}
+
+/* ---------- DASHBOARD ---------- */
+function viewDashboard(){
+  const total = LESSONS.length;
+  const done = Object.keys(state.completed).length;
+  const pct = Math.round(done/total*100);
+  const cards = LESSONS.map(l=>{
+    const unlocked = lessonUnlocked(l.id);
+    const completed = !!state.completed[l.id];
+    const ph = l.placeholder;
+    const a = `var(--${l.accent})`;
+    // milestone gate card before lessons 6, 11...
+    let gate = "";
+    if(l.id % 5 === 1 && l.id>1){
+      const block=(l.id-1)/5;
+      const passed = state.milestones["m"+block];
+      gate = `<div class="mb-3 rise">
+        <button onclick="go('milestone:${block}')" class="w-full card rounded-xl p-5 flex items-center justify-between ${passed?'':''}" style="border-color:var(--rost)">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-lg grid place-items-center text-white text-xl" style="background:var(--rost)">${passed?'★':'🔒'}</div>
+            <div class="text-left">
+              <div class="font-display font-bold text-lg">Milestone Test ${block}</div>
+              <div class="text-sm text-[var(--ink-soft)]">Covers lessons ${(block-1)*5+1}–${block*5}. ${passed?'Passed — '+Math.round(state.scores['m'+block]*100)+'%':'Pass to unlock the next block.'}</div>
+            </div>
+          </div>
+          <span class="font-display font-bold" style="color:var(--rost)">${passed?'Review →':'Take test →'}</span>
+        </button></div>`;
+    }
+    return gate + `<button onclick="${unlocked?`go('lesson:${l.id}')`:''}" class="card rounded-xl p-5 text-left w-full ${unlocked?'hover:-translate-y-0.5 transition':'locked cursor-not-allowed'} rise" style="animation-delay:${l.id*40}ms">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-4 min-w-0">
+          <div class="w-12 h-12 rounded-lg grid place-items-center font-display font-black text-xl text-white shrink-0" style="background:${a}">${l.id}</div>
+          <div class="min-w-0">
+            <div class="font-display font-bold text-lg leading-tight truncate">${l.title}</div>
+            <div class="text-sm text-[var(--ink-soft)] truncate">${l.subtitle}</div>
+          </div>
+        </div>
+        <div class="shrink-0 text-right">
+          ${completed?'<span class="text-2xl">✅</span>':unlocked?(ph?'<span class="text-xs uppercase tracking-wider px-2 py-1 rounded-full" style="background:var(--paper-2)">Soon</span>':'<span class="text-xs uppercase tracking-wider px-2 py-1 rounded-full" style="background:var(--honey);color:#fff">Open</span>'):'<span class="text-2xl">🔒</span>'}
+        </div>
+      </div>
+    </button>`;
+  }).join("");
+
+  return `
+  <header class="rise">
+    <p class="uppercase tracking-[.3em] text-xs text-[var(--ink-soft)] mb-3">Willkommen zurück</p>
+    <h1 class="font-display font-black text-4xl sm:text-5xl leading-[1.05] mb-3">Your German<br/>learning journey.</h1>
+    <p class="text-[var(--ink-soft)] max-w-xl text-lg">Every lesson is ~90 minutes: vocabulary, grammar, listening &amp; speaking, reading &amp; writing — then homework. Built from the words you already know.</p>
+  </header>
+
+  <div class="grid grid-cols-3 gap-4 mt-8 mb-10">
+    ${statBox(done, "Lessons done", "honey")}
+    ${statBox(pct+"%", "Course progress", "sky")}
+    ${statBox(Object.keys(state.milestones).length, "Milestones", "rost")}
+  </div>
+
+  <div class="flex items-center gap-3 mb-4">
+    <h2 class="font-display font-bold text-2xl">Lessons</h2>
+    <div class="flex-1 h-px bg-[var(--line)]"></div>
+  </div>
+  <div class="space-y-3">${cards}</div>`;
+}
+function statBox(val,label,c){
+  return `<div class="card rounded-xl p-4 sm:p-5 rise">
+    <div class="font-display font-black text-3xl sm:text-4xl" style="color:var(--${c})">${val}</div>
+    <div class="text-xs sm:text-sm text-[var(--ink-soft)] mt-1">${label}</div>
+  </div>`;
+}
+
+/* ---------- LESSON VIEW ---------- */
+function renderLesson(id){
+  const l = LESSONS.find(x=>x.id===id);
+  const main = document.getElementById('main');
+  if(!l){ go("dashboard"); return; }
+  if(!lessonUnlocked(id)){ main.innerHTML = lockedNotice(id); return; }
+  if(l.placeholder){ main.innerHTML = placeholderView(l); return; }
+
+  const a = `var(--${l.accent})`;
+  main.innerHTML = `
+   <button onclick="go('dashboard')" class="text-sm text-[var(--ink-soft)] hover:text-ink mb-5">← Back to dashboard</button>
+   <header class="rise mb-8">
+     <div class="flex items-center gap-2 text-xs uppercase tracking-[.25em] text-[var(--ink-soft)] mb-2">
+       <span class="px-2 py-0.5 rounded text-white" style="background:${a}">Lesson ${l.id}</span>
+       <span>≈ 90 minutes</span>
+     </div>
+     <h1 class="font-display font-black text-4xl">${l.title}</h1>
+     <p class="text-[var(--ink-soft)] text-lg">${l.subtitle}</p>
+   </header>
+
+   ${section("Vocabulary","20 min","🗂️", vocabModule(l), a)}
+   ${section("Grammar","25 min","✏️", grammarModule(l), a)}
+   ${section("Listening &amp; Speaking","30 min","🎧", listeningModule(l), a)}
+   ${section("Reading &amp; Writing","15 min","📖", readingModule(l), a)}
+
+   <div class="card rounded-2xl p-6 mt-8 text-center rise" style="border-color:${a}">
+     <h3 class="font-display font-bold text-2xl mb-2">Ready for homework?</h3>
+     <p class="text-[var(--ink-soft)] mb-4">Finish the lesson by reinforcing it with the homework set.</p>
+     <button onclick="go('homework:${l.id}')" class="px-6 py-3 rounded-full font-bold text-white" style="background:${a}">Go to Homework →</button>
+     <div class="mt-4">
+       <button onclick="completeLesson(${l.id})" class="text-sm underline text-[var(--ink-soft)]">Mark lesson complete</button>
+     </div>
+   </div>`;
+  initFlashcards();
+}
+
+function section(title, time, icon, body, a){
+  return `<section class="card rounded-2xl p-6 mb-6 rise">
+    <div class="flex items-center justify-between mb-5">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">${icon}</span>
+        <h2 class="font-display font-bold text-2xl">${title}</h2>
+      </div>
+      <span class="text-xs uppercase tracking-wider px-3 py-1 rounded-full" style="background:var(--paper-2)">${time}</span>
+    </div>
+    ${body}
+  </section>`;
+}
+
+/* ----- Vocabulary: flashcards ----- */
+function vocabModule(l){
+  return `<p class="text-[var(--ink-soft)] mb-4">Tap a card to flip it. Tap 🔊 to hear the pronunciation. Mark the ones you know.</p>
+  <div id="flashgrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+    ${l.vocab.map((w,i)=>flashcard(w,l.id,i)).join("")}
+  </div>`;
+}
+function flashcard(w, lid, i){
+  const key = lid+":"+w.de;
+  const known = state.flashKnown[key];
+  const t = w.de.replace(/'/g,"\\'");
+  return `<div class="flip ${''}" data-key="${key}">
+    <div class="flip-inner relative h-28">
+      <div class="flip-face card rounded-xl h-full w-full p-3 flex flex-col justify-between cursor-pointer" onclick="this.closest('.flip').classList.toggle('flipped')">
+        <div class="flex justify-between items-start">
+          <span class="font-display font-bold text-lg leading-tight">${w.de}</span>
+          ${speakBtn(t)}
+        </div>
+        <span class="text-[11px] uppercase tracking-wider text-[var(--ink-soft)]">tap to flip</span>
+      </div>
+      <div class="flip-face flip-back card rounded-xl h-full w-full p-3 flex flex-col justify-between cursor-pointer" style="background:var(--paper-2)" onclick="this.closest('.flip').classList.toggle('flipped')">
+        <span class="text-base font-medium">${w.en}</span>
+        <button onclick="event.stopPropagation();toggleKnown('${key}',this)" class="text-xs px-2 py-1 rounded-full self-start ${known?'text-white':''}" style="${known?'background:var(--moss)':'background:#fff;border:1px solid var(--line)'}">${known?'✓ known':'mark known'}</button>
+      </div>
+    </div>
+  </div>`;
+}
+function toggleKnown(key,btn){
+  state.flashKnown[key] = !state.flashKnown[key];
+  save();
+  const k = state.flashKnown[key];
+  btn.textContent = k?'✓ known':'mark known';
+  btn.style.background = k?'var(--moss)':'#fff';
+  btn.style.color = k?'#fff':'';
+  if(!k) btn.style.border='1px solid var(--line)';
+}
+function initFlashcards(){}
+
+/* ----- Grammar ----- */
+function grammarModule(l){
+  const g=l.grammar;
+  const blocks = g.blocks.map(b=>{
+    let inner = b.p?`<p class="text-[var(--ink-soft)] mb-3">${b.p}</p>`:"";
+    if(b.table){ inner += conjTable(b.table[0], b.table[1]); }
+    if(b.examples){ inner += `<div class="space-y-2 mt-2">${b.examples.map(ex=>exLine(ex)).join("")}</div>`; }
+    return `<div class="mb-5"><h4 class="font-display font-bold text-lg mb-2">${b.h}</h4>${inner}</div>`;
+  }).join("");
+  return `<h3 class="font-display font-semibold text-xl mb-4" style="color:var(--${l.accent})">${g.heading}</h3>
+    ${blocks}
+    <div class="mt-6 pt-5 border-t border-[var(--line)]">
+      <h4 class="font-display font-bold text-lg mb-3">Practice (${g.exercises.length})</h4>
+      ${quizBlock(g.exercises, "g"+l.id)}
+    </div>`;
+}
+function conjTable(name, v){
+  const rows = [["ich",v.ich],["du",v.du],["er/sie/es",v.er],["wir",v.wir],["ihr",v.ihr],["sie/Sie",v.sie]];
+  return `<div class="rounded-xl overflow-hidden border border-[var(--line)] my-2">
+    <div class="flex items-center justify-between px-4 py-2 text-white" style="background:var(--ink)">
+      <span class="font-display font-bold">${name} <span class="opacity-70 font-sans font-normal text-sm">— ${v.en}</span></span>
+      ${speakBtn(name)}
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-px bg-[var(--line)]">
+      ${rows.map(r=>`<div class="bg-white px-4 py-2 flex items-center justify-between gap-2">
+        <span class="text-[var(--ink-soft)] text-sm">${r[0]}</span>
+        <span class="font-medium flex items-center gap-1">${r[1]} ${speakBtn(r[1])}</span>
+      </div>`).join("")}
+    </div>
+  </div>`;
+}
+function exLine(ex){
+  const t = ex.de.replace(/'/g,"\\'");
+  return `<div class="flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-[var(--line)]">
+    ${speakBtn(t)}
+    <div><span class="font-medium">${ex.de}</span> <span class="text-[var(--ink-soft)] text-sm">— ${ex.en}</span></div>
+  </div>`;
+}
+
+/* ----- Listening & Speaking ----- */
+function listeningModule(l){
+  const d=l.listening;
+  const dialogue = d.dialogue.map(line=>{
+    const t=line.de.replace(/'/g,"\\'");
+    return `<div class="flex items-start gap-3 mb-2">
+      ${speakBtn(t)}
+      <div class="flex-1">
+        <span class="text-xs uppercase tracking-wider text-[var(--ink-soft)]">${line.sp}</span>
+        <p class="font-medium">${line.de}</p>
+        <details class="text-sm text-[var(--ink-soft)]"><summary class="hover:text-ink">show translation</summary>${line.en}</details>
+      </div>
+    </div>`;
+  }).join("");
+  const shadow = d.shadow.map(s=>{
+    const t=s.de.replace(/'/g,"\\'");
+    return `<div class="flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-[var(--line)] mb-2">
+      ${speakBtn(t)}
+      <div class="flex-1"><span class="font-medium">${s.de}</span><div class="text-xs text-[var(--ink-soft)]">${s.hint}</div></div>
+      <span class="text-lg">🎤</span>
+    </div>`;
+  }).join("");
+  return `<p class="text-[var(--ink-soft)] mb-3">${d.intro}</p>
+    <div class="rounded-xl p-4 mb-5" style="background:var(--paper-2)">
+      <div class="flex items-center justify-between mb-3">
+        <h4 class="font-display font-bold">Dialogue</h4>
+        <button onclick="playDialogue(${l.id})" class="text-sm px-3 py-1.5 rounded-full text-white" style="background:var(--${l.accent})">▶ Play all</button>
+      </div>
+      ${dialogue}
+    </div>
+    <h4 class="font-display font-bold mb-2">🗣️ Shadowing — say these out loud</h4>
+    ${shadow}`;
+}
+function playDialogue(id){
+  const l=LESSONS.find(x=>x.id===id);
+  const lines=l.listening.dialogue.map(d=>d.de);
+  let i=0;
+  speechSynthesis.cancel();
+  (function next(){
+    if(i>=lines.length) return;
+    const u=new SpeechSynthesisUtterance(lines[i]); u.lang="de-DE"; u.rate=0.9;
+    if(deVoice)u.voice=deVoice;
+    u.onend=()=>{ i++; setTimeout(next,350); };
+    speechSynthesis.speak(u);
+  })();
+}
+
+/* ----- Reading & Writing ----- */
+function readingModule(l){
+  const r=l.reading;
+  const t=r.text.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+  return `<div class="rounded-xl p-5 mb-5" style="background:var(--paper-2)">
+      <div class="flex items-center justify-between mb-2">
+        <h4 class="font-display font-bold text-lg">${r.title}</h4>
+        ${speakBtn(t)}
+      </div>
+      <p class="leading-relaxed text-[17px]">${r.text}</p>
+    </div>
+    <h4 class="font-display font-bold mb-3">Comprehension</h4>
+    ${quizBlock(r.questions, "r"+l.id)}
+    <div class="mt-6">
+      <h4 class="font-display font-bold mb-2">✍️ Writing prompt</h4>
+      <p class="text-[var(--ink-soft)] mb-2">${r.writing}</p>
+      ${writingBox("w"+l.id)}
+    </div>`;
+}
+function writingBox(key){
+  const saved = (state.scores["text:"+key]||"");
+  return `<textarea id="${key}" oninput="saveText('${key}',this.value)" rows="4" class="ring-honey w-full rounded-xl border border-[var(--line)] p-3 bg-white resize-y" placeholder="Schreib hier auf Deutsch…">${saved}</textarea>
+    <div class="text-xs text-[var(--ink-soft)] mt-1">Saved automatically • <span id="cnt:${key}">${saved.split(/\s+/).filter(Boolean).length}</span> words</div>`;
+}
+function saveText(key,val){
+  state.scores["text:"+key]=val; save();
+  const c=document.getElementById("cnt:"+key); if(c) c.textContent=val.split(/\s+/).filter(Boolean).length;
+}
+
+/* ---------- QUIZ ENGINE (MC + fill) ---------- */
+function quizBlock(items, ns){
+  return `<div class="space-y-4" data-quiz="${ns}">
+    ${items.map((it,i)=>quizItem(it,ns,i)).join("")}
+  </div>`;
+}
+function quizItem(it, ns, i){
+  const id = ns+"_"+i;
+  if(it.type==="write"){
+    return `<div class="bg-white rounded-xl border border-[var(--line)] p-4">
+      <p class="font-medium mb-2">${i+1}. ${it.q}</p>${writingBox(id)}</div>`;
+  }
+  if(it.type==="fill"){
+    return `<div class="bg-white rounded-xl border border-[var(--line)] p-4" data-ans="${it.answer.toLowerCase()}" data-type="fill" id="${id}">
+      <p class="font-medium mb-3">${i+1}. ${it.q}</p>
+      <div class="flex items-center gap-3 flex-wrap">
+        <input class="blank-input ring-honey py-1 px-2 font-medium" placeholder="…" onkeydown="if(event.key==='Enter')checkFill('${id}')"/>
+        <button onclick="checkFill('${id}')" class="text-sm px-3 py-1.5 rounded-full text-white" style="background:var(--ink)">Check</button>
+        <span class="feedback text-sm font-medium"></span>
+      </div>
+    </div>`;
+  }
+  // multiple choice
+  return `<div class="bg-white rounded-xl border border-[var(--line)] p-4" data-ans="${it.answer}" data-type="mc" id="${id}">
+    <p class="font-medium mb-3">${i+1}. ${it.q}</p>
+    <div class="space-y-2">
+      ${it.options.map((o,oi)=>`<button class="opt w-full text-left px-4 py-2.5 rounded-lg border border-[var(--line)]" onclick="checkMC('${id}',${oi})">${o}</button>`).join("")}
+    </div>
+    <div class="feedback text-sm font-medium mt-2"></div>
+  </div>`;
+}
+function checkMC(id, choice){
+  const box=document.getElementById(id);
+  if(box.dataset.done) return;
+  const ans=parseInt(box.dataset.ans);
+  const btns=box.querySelectorAll('.opt');
+  btns.forEach((b,i)=>{ b.disabled=true; if(i===ans)b.classList.add('correct'); });
+  if(choice===ans){ box.querySelector('.feedback').innerHTML='<span style="color:var(--moss)">✓ Richtig!</span>'; }
+  else { btns[choice].classList.add('wrong'); box.querySelector('.feedback').innerHTML='<span style="color:var(--rost)">✗ Not quite — the green one is correct.</span>'; }
+  box.dataset.done=1; box.dataset.correct = (choice===ans)?1:0;
+  updateMilestoneScore();
+}
+function checkFill(id){
+  const box=document.getElementById(id);
+  const input=box.querySelector('input');
+  const val=input.value.trim().toLowerCase();
+  const ans=box.dataset.ans;
+  const ok = val===ans || val.replace(/ß/g,'ss')===ans.replace(/ß/g,'ss');
+  const fb=box.querySelector('.feedback');
+  if(ok){ fb.innerHTML='<span style="color:var(--moss)">✓ Richtig!</span>'; input.style.borderBottomColor='var(--moss)'; }
+  else { fb.innerHTML=`<span style="color:var(--rost)">✗ Answer: <b>${box.dataset.ans}</b></span>`; input.style.borderBottomColor='var(--rost)'; }
+  box.dataset.done=1; box.dataset.correct=ok?1:0;
+  updateMilestoneScore();
+}
+
+/* ---------- HOMEWORK ---------- */
+function renderHomework(id){
+  const l=LESSONS.find(x=>x.id===id);
+  const main=document.getElementById('main');
+  if(!l||l.placeholder||!lessonUnlocked(id)){ main.innerHTML=lockedNotice(id); return; }
+  const a=`var(--${l.accent})`;
+  main.innerHTML=`
+   <button onclick="go('lesson:${id}')" class="text-sm text-[var(--ink-soft)] hover:text-ink mb-5">← Back to lesson ${id}</button>
+   <header class="rise mb-6">
+     <div class="text-xs uppercase tracking-[.25em] text-[var(--ink-soft)] mb-2">Lesson ${id} · Homework</div>
+     <h1 class="font-display font-black text-4xl">Hausaufgaben</h1>
+     <p class="text-[var(--ink-soft)] text-lg">Reinforce ${l.title}. Complete every item, then mark the lesson done.</p>
+   </header>
+   <section class="card rounded-2xl p-6 rise">
+     ${quizBlock(l.homework, "h"+id)}
+     <div class="mt-6 pt-5 border-t border-[var(--line)] text-center">
+       <button onclick="completeLesson(${id})" class="px-6 py-3 rounded-full font-bold text-white" style="background:${a}">✓ Mark Lesson ${id} Complete</button>
+     </div>
+   </section>`;
+}
+
+function completeLesson(id){
+  state.completed[id]=true; save();
+  const l=LESSONS.find(x=>x.id===id);
+  // if this finishes a block of 5, push toward milestone
+  toast(`Lesson ${id} complete! 🎉`);
+  // if next is a milestone gate, hint it
+  go("dashboard");
+}
+
+/* ---------- MILESTONE TEST ---------- */
+function buildMilestone(block){
+  // gather exercises from the lessons in this block (1-5 for block 1)
+  const from = (block-1)*5+1, to=block*5;
+  let pool=[];
+  LESSONS.filter(l=>l.id>=from&&l.id<=to&&!l.placeholder).forEach(l=>{
+    pool=pool.concat(l.grammar.exercises.filter(e=>e.type!=="write"));
+    pool=pool.concat(l.reading.questions);
+    pool=pool.concat(l.homework.filter(e=>e.type!=="write"));
+  });
+  return pool;
+}
+function renderMilestone(block){
+  const main=document.getElementById('main');
+  const items=buildMilestone(block);
+  const passed=state.milestones["m"+block];
+  main.innerHTML=`
+   <button onclick="go('dashboard')" class="text-sm text-[var(--ink-soft)] hover:text-ink mb-5">← Back to dashboard</button>
+   <header class="rise mb-6">
+     <div class="text-xs uppercase tracking-[.25em] mb-2" style="color:var(--rost)">Milestone ${block}</div>
+     <h1 class="font-display font-black text-4xl">Milestone Test</h1>
+     <p class="text-[var(--ink-soft)] text-lg">Covers lessons ${(block-1)*5+1}–${block*5}. Score <b>${PASS_SCORE*100}%</b> or higher to unlock the next block.</p>
+     ${passed?`<p class="mt-2 font-medium" style="color:var(--moss)">★ Already passed — ${Math.round(state.scores['m'+block]*100)}%. You can retake it any time.</p>`:''}
+   </header>
+   <section class="card rounded-2xl p-6 rise">
+     <div id="msScore" class="sticky top-2 z-10 mb-4 flex items-center justify-between bg-white rounded-xl border border-[var(--line)] px-4 py-3">
+       <span class="font-medium">Progress: <span id="msAnswered">0</span>/${items.length} answered</span>
+       <span class="font-display font-bold text-lg" id="msPct">—</span>
+     </div>
+     ${quizBlock(items, "m"+block)}
+     <div class="mt-6 pt-5 border-t border-[var(--line)] text-center">
+       <button onclick="gradeMilestone(${block},${items.length})" class="px-6 py-3 rounded-full font-bold text-white" style="background:var(--rost)">Submit Test</button>
+       <div id="msResult" class="mt-4"></div>
+     </div>
+   </section>`;
+  window._msTotal=items.length; window._msBlock=block;
+}
+function updateMilestoneScore(){
+  if(!window._msTotal) return;
+  const ns="m"+window._msBlock;
+  const boxes=document.querySelectorAll(`[data-quiz="${ns}"] [data-type]`);
+  let done=0;
+  boxes.forEach(b=>{ if(b.dataset.done) done++; });
+  const a=document.getElementById('msAnswered'); if(a) a.textContent=done;
+}
+function gradeMilestone(block, total){
+  const ns="m"+block;
+  const boxes=document.querySelectorAll(`[data-quiz="${ns}"] [data-type]`);
+  let correct=0, answered=0;
+  boxes.forEach(b=>{ if(b.dataset.done){answered++; if(b.dataset.correct==1)correct++;} });
+  if(answered<total){
+    if(!confirm(`You answered ${answered}/${total}. Unanswered count as wrong. Submit anyway?`)) return;
+  }
+  const score=correct/total;
+  const res=document.getElementById('msResult');
+  if(score>=PASS_SCORE){
+    state.milestones[ns]=true; state.scores[ns]=score; save();
+    res.innerHTML=`<div class="pop card rounded-xl p-5" style="border-color:var(--moss)">
+      <div class="text-4xl mb-1">🏆</div>
+      <div class="font-display font-black text-2xl" style="color:var(--moss)">Passed — ${Math.round(score*100)}%</div>
+      <p class="text-[var(--ink-soft)]">${correct}/${total} correct. The next block is unlocked!</p>
+      <button onclick="go('dashboard')" class="mt-3 px-5 py-2 rounded-full text-white" style="background:var(--moss)">Continue →</button>
+    </div>`;
+  } else {
+    state.scores[ns]=score; save();
+    res.innerHTML=`<div class="pop card rounded-xl p-5" style="border-color:var(--rost)">
+      <div class="text-4xl mb-1">📚</div>
+      <div class="font-display font-black text-2xl" style="color:var(--rost)">${Math.round(score*100)}% — not yet</div>
+      <p class="text-[var(--ink-soft)]">${correct}/${total} correct. You need ${PASS_SCORE*100}%. Review the lessons and try again.</p>
+      <button onclick="renderMilestone(${block})" class="mt-3 px-5 py-2 rounded-full text-white" style="background:var(--rost)">Retake test</button>
+    </div>`;
+  }
+  document.getElementById('msPct').textContent=Math.round(score*100)+"%";
+  res.scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+/* ---------- PROGRESS TRACKER ---------- */
+function viewProgress(){
+  const total=LESSONS.filter(l=>!l.placeholder).length + LESSONS.filter(l=>l.placeholder).length;
+  const done=Object.keys(state.completed).length;
+  const known=Object.values(state.flashKnown).filter(Boolean).length;
+  const totalWords=LESSONS.filter(l=>l.vocab).reduce((a,l)=>a+l.vocab.length,0);
+  const rows=LESSONS.map(l=>{
+    const c=!!state.completed[l.id];
+    const u=lessonUnlocked(l.id);
+    return `<div class="flex items-center gap-3 py-3 border-b border-[var(--line)]">
+      <div class="w-9 h-9 rounded-lg grid place-items-center text-white font-display font-bold" style="background:var(--${l.accent})">${l.id}</div>
+      <div class="flex-1 min-w-0">
+        <div class="font-medium truncate">${l.title}</div>
+        <div class="text-xs text-[var(--ink-soft)] truncate">${l.subtitle}</div>
+      </div>
+      <span>${c?'✅':u?(l.placeholder?'⏳':'▢'):'🔒'}</span>
+    </div>`;
+  }).join("");
+  const milestones=Object.keys(state.milestones).map(k=>{
+    const b=k.replace('m','');
+    return `<div class="flex items-center justify-between py-2"><span>Milestone ${b}</span><span class="font-bold" style="color:var(--moss)">★ ${Math.round((state.scores[k]||0)*100)}%</span></div>`;
+  }).join("") || `<p class="text-[var(--ink-soft)] text-sm">No milestones passed yet.</p>`;
+
+  return `
+  <header class="rise mb-8">
+    <p class="uppercase tracking-[.3em] text-xs text-[var(--ink-soft)] mb-2">Fortschritt</p>
+    <h1 class="font-display font-black text-4xl">Progress Tracker</h1>
+  </header>
+  <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+    ${statBox(done+"/"+LESSONS.length,"Lessons completed","honey")}
+    ${statBox(known+"/"+totalWords,"Words marked known","moss")}
+    ${statBox(Object.keys(state.milestones).length,"Milestones passed","rost")}
+  </div>
+  <div class="card rounded-2xl p-6 mb-6 rise">
+    <h2 class="font-display font-bold text-2xl mb-3">Lessons</h2>
+    ${rows}
+  </div>
+  <div class="card rounded-2xl p-6 rise">
+    <h2 class="font-display font-bold text-2xl mb-3">Milestones</h2>
+    ${milestones}
+  </div>`;
+}
+
+/* ---------- Misc UI ---------- */
+function placeholderView(l){
+  return `<button onclick="go('dashboard')" class="text-sm text-[var(--ink-soft)] hover:text-ink mb-5">← Back</button>
+  <div class="card rounded-2xl p-10 text-center rise">
+    <div class="text-5xl mb-3">🛠️</div>
+    <h1 class="font-display font-black text-3xl mb-2">Lesson ${l.id}: ${l.title}</h1>
+    <p class="text-[var(--ink-soft)] max-w-md mx-auto">${l.subtitle}. This lesson is part of the roadmap and will follow the same 90-minute structure as lessons 1 &amp; 2.</p>
+  </div>`;
+}
+function lockedNotice(id){
+  return `<button onclick="go('dashboard')" class="text-sm text-[var(--ink-soft)] hover:text-ink mb-5">← Back</button>
+  <div class="card rounded-2xl p-10 text-center rise">
+    <div class="text-5xl mb-3">🔒</div>
+    <h1 class="font-display font-black text-3xl mb-2">Locked</h1>
+    <p class="text-[var(--ink-soft)]">Complete the earlier lessons and pass the milestone test to unlock lesson ${id}.</p>
+  </div>`;
+}
+function toast(msg){
+  const t=document.createElement('div');
+  t.className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] px-5 py-3 rounded-full text-white font-medium pop";
+  t.style.background="var(--ink)"; t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>{ t.style.transition="opacity .4s"; t.style.opacity="0"; setTimeout(()=>t.remove(),400); },2200);
+}
+function resetAll(){
+  if(confirm("Reset ALL progress? This cannot be undone.")){
+    localStorage.removeItem(STORE_KEY); state={...defaultState}; go("dashboard");
+  }
+}
+function toggleMobileNav(){ const n=document.getElementById('mobileNav'); n.classList.toggle('hidden'); }
+function closeMobile(){ document.getElementById('mobileNav').classList.add('hidden'); }
+
+/* ---------- Boot ---------- */
+render();
+</script>
+</body>
+</html>
