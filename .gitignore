@@ -1,6 +1,9 @@
 # Visual Studio
 .vs/
 
+# Claude Code local preview helper
+.claude/
+
 # OS
 Thumbs.db
 .DS_Store
